@@ -21,14 +21,10 @@ import urllib2
 import urlparse
 
 
-OUTPUT_RE = re.compile\
-    ( r'[^\d]*(?P<conn_active>\d+)'
-      r'[^\d]*(?P<conn_accepted>\d+)\s(?P<conn_total>\d+)\s(?P<req_total>\d+)'
-      r'[^\d]*\s(?P<reading>\d+)[^\d]*\s(?P<writing>\d+)[^\d]*(?P<waiting>\d+)'
-    )
+OUTPUT_RE = re.compile(r'(?P<name>[\w ]+):\s+(?P<value>.+)')
 
 
-def main(name=None, url='http://127.0.0.1/stub_status'):
+def main(name=None, url='http://127.0.0.1/status'):
     result = ''
 
     url_parsed = urlparse.urlparse(url)
@@ -49,17 +45,15 @@ def main(name=None, url='http://127.0.0.1/stub_status'):
         pass
     else:
         response_data = response.read()
-        match = OUTPUT_RE.match(response_data)
-        data = match.groupdict() or {}
 
-        if {'conn_total', 'conn_accepted', 'req_total'} & set(data.keys()):
-            data['conn_failed'] = \
-                str(int(data['conn_total']) - int(data['conn_accepted']))
-            data['req_avg_total'] = \
-                '%.4f' % (float(data['req_total']) / int(data['conn_total']) if int(data['conn_total']) else 0)
-            data['req_avg_accepted'] = \
-                '%.4f' % (float(data['req_total']) / int(data['conn_accepted']) if int(data['conn_accepted']) else 0)
+        data = dict()
+        for k, v in OUTPUT_RE.findall(response_data):
+            k = k.replace(' ', '_').lower()
+            if k:
+                data[k] = v
+
         try:
+
             result = data[name]
         except KeyError:
             result = json.dumps(data, indent=2)

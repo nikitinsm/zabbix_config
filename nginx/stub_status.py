@@ -56,9 +56,9 @@ def main(name=None, url='http://127.0.0.1/stub_status'):
             data['conn_failed'] = \
                 str(int(data['conn_total']) - int(data['conn_accepted']))
             data['req_avg_total'] = \
-                str(float(data['req_total']) / int(data['conn_total']) if int(data['conn_total']) else 0)
+                '%.4f' % str(float(data['req_total']) / int(data['conn_total']) if int(data['conn_total']) else 0)
             data['req_avg_accepted'] = \
-                str(float(data['req_total']) / int(data['conn_accepted']) if int(data['conn_accepted']) else 0)
+                '%.4f' % str(float(data['req_total']) / int(data['conn_accepted']) if int(data['conn_accepted']) else 0)
         try:
             result = data[name]
         except KeyError:

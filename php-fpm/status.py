@@ -53,7 +53,6 @@ def main(name=None, url='http://127.0.0.1/status'):
                 data[k] = v
 
         try:
-
             result = data[name]
         except KeyError:
             result = json.dumps(data, indent=2)
